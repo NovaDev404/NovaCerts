@@ -1,0 +1,144 @@
+name: Check Certificate Status
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  daily-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo (full history)
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Install jq (JSON parser)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Scan cert folders, call API, and update README.md
+        env:
+          API_URL: "https://tools.nezushub.vip/cert-ios-checker/api/"
+          README_PATH: "README.md"
+        run: |
+          set -euo pipefail
+
+          README="${README_PATH}"
+          API="${API_URL}"
+          CHANGED=0
+          TMPDIR="$(mktemp -d)"
+          trap 'rm -rf "$TMPDIR"' EXIT
+
+          echo "Scanning top-level directories for certificates..."
+
+          for d in */; do
+            # strip trailing slash
+            dirname="${d%/}"
+
+            # skip common repo/system dirs
+            case "$dirname" in
+              .github|.git|node_modules|.vscode|.github-actions) continue ;;
+            esac
+
+            p12="$dirname/${dirname}.p12"
+            profile="$dirname/${dirname}.mobileprovision"
+            passfile="$dirname/password.txt"
+
+            if [[ -f "$p12" && -f "$profile" && -f "$passfile" ]]; then
+              echo "Found cert bundle for: $dirname"
+
+              # read password (trim whitespace/newline)
+              password="$(tr -d '\r' < "$passfile" | sed -n '1p')"
+
+              respfile="$TMPDIR/resp_${dirname}.json"
+
+              # POST to API
+              echo " -> uploading to checker API..."
+              curl -s -X POST "$API" \
+                -F "file=@${p12}" \
+                -F "secondary_file=@${profile}" \
+                -F "password=${password}" \
+                -H "Accept: application/json" \
+                -o "$respfile" ||
+                { echo "curl failed for $dirname"; continue; }
+
+              success=$(jq -r 'if has("success") then .success else false end' "$respfile")
+
+              if [[ "$success" != "true" ]]; then
+                err_msg=$(jq -r '.error.message // "unknown error"' "$respfile")
+                echo "   API returned failure for $dirname: $err_msg"
+                continue
+              fi
+
+              # ensure comparison_data exists & certificates_match true
+              certs_match=$(jq -r 'try .data.certificate.comparison_data.certificates_match // false' "$respfile")
+
+              if [[ "$certs_match" != "true" ]]; then
+                echo "   Certificates DO NOT match for $dirname — skipping README update."
+                continue
+              fi
+
+              # extract data
+              cert_type=$(jq -r '.data.certificate.type // "Unknown Certificate"' "$respfile")
+              status_raw=$(jq -r '.data.certificate.certificate_status.status // "Unknown"' "$respfile")
+              # map to README icons
+              if [[ "${status_raw,,}" == *"sign"* || "${status_raw,,}" == "signed" ]]; then
+                status_icon="**✅ Signed**"
+              else
+                status_icon="**❌ Revoked**"
+              fi
+
+              valid_from_iso=$(jq -r '.data.certificate.certificate_info.validity_period.valid_from // empty' "$respfile")
+              valid_to_iso=$(jq -r '.data.certificate.certificate_info.validity_period.valid_to // empty' "$respfile")
+
+              # fallback to empty if missing
+              valid_from_fmt=""
+              valid_to_fmt=""
+              if [[ -n "$valid_from_iso" ]]; then
+                # convert to dd/mm/yy HH:MM
+                valid_from_fmt=$(date -d "$valid_from_iso" +"%d/%m/%y %H:%M" 2>/dev/null || date -u -d "$valid_from_iso" +"%d/%m/%y %H:%M" 2>/dev/null || echo "$valid_from_iso")
+              fi
+              if [[ -n "$valid_to_iso" ]]; then
+                valid_to_fmt=$(date -d "$valid_to_iso" +"%d/%m/%y %H:%M" 2>/dev/null || date -u -d "$valid_to_iso" +"%d/%m/%y %H:%M" 2>/dev/null || echo "$valid_to_iso")
+              fi
+
+              echo "   API success & certs match. Type: $cert_type, Status: $status_raw, From: $valid_from_fmt, To: $valid_to_fmt"
+
+              # Update README: replace the entire line that starts with "| <dirname> |"
+              # Keep the company name exactly as it appears in the README (directory name must match the left column text)
+              tmp_readme="$TMPDIR/README_${dirname}.md"
+              awk -v name="$dirname" -v type="$cert_type" -v status="$status_icon" -v vf="$valid_from_fmt" -v vt="$valid_to_fmt" \
+                'BEGIN{found=0; pattern="| " name " |"} \
+                 { if (substr($0,1,length(pattern)) == pattern) { printf("| %s | %s | %s | %s | %s |\n", name, type, status, vf, vt); found=1 } else print $0 } \
+                 END { if (found==0) exit 2 }' "$README" > "$tmp_readme" && mv "$tmp_readme" "$README" || \
+                 ( echo "   WARNING: did not find an existing README row for '$dirname'. Skipping edit for this entry." && continue )
+
+              CHANGED=1
+              echo "   README row updated for $dirname"
+
+            fi
+          done
+
+          if [[ "$CHANGED" -eq 1 ]]; then
+            echo "Committing README changes..."
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add "$README"
+            # if there's nothing to commit git will exit non-zero; handle gracefully
+            if git diff --staged --quiet; then
+              echo "No staged changes to commit."
+            else
+              git commit -m "chore: update certificate statuses (automated daily check)"
+              git push
+              echo "README pushed."
+            fi
+          else
+            echo "No changes detected; nothing to commit."
+          fi
