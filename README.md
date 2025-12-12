@@ -1,12 +1,13 @@
 # Official ProStore Certificates
 All of ProStore's official leaked enterprise certificates!  
-Sources for these certificates include: [Loyahdev](https://github.com/loyahdev/certificates), [NezusHub](https://nezushub.vip/forums/public-certificates.7/), and [Eojoo](https://github.com/eojoo/free-ios-certificates).
+Sources for these certificates include: [Loyahdev](https://github.com/loyahdev/certificates), [NezusHub](https://nezushub.vip/forums/public-certificates.7/), [AppleJR](https://www.applejr.net/), and [Eojoo](https://github.com/eojoo/free-ios-certificates).
 
 ---
 
 | Company | Type | Status | Valid From | Valid To |
 |:--------|:----|:------|:----------|:--------|
 | Etisalat - Emirates Telecommunications Corporation | Enterprise Certificate | **❌ Revoked** | 08/02/23 06:07 | 07/02/26 06:07 |
+| China Telecommunications Corporation V2 | Enterprise Certificate | **❌ Revoked** | ... | ... |
 | Global Takeoff, Inc | Enterprise Certificate | **❌ Revoked** | 05/06/25 04:55 | 04/06/28 04:55 |
 | Guangzhou Huahan Educational & Technology Co., Ltd. | Enterprise Certificate | **❌ Revoked** | 23/01/25 04:05 | 23/01/28 04:05 |
 | Tianjin University of Commerce | Enterprise Certificate | **❌ Revoked** | 26/02/24 01:15 | 25/02/27 01:15 |
