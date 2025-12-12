@@ -7,7 +7,7 @@ Sources for these certificates include: [Loyahdev](https://github.com/loyahdev/c
 | Company | Type | Status | Valid From | Valid To |
 |:--------|:----|:------|:----------|:--------|
 | Etisalat - Emirates Telecommunications Corporation | Enterprise Certificate | **❌ Revoked** | 08/02/23 06:07 | 07/02/26 06:07 |
-| China Telecommunications Corporation V2 | Enterprise Certificate | **❌ Revoked** | ... | ... |
+| China Telecommunications Corporation V2 | Enterprise Certificate | **❌ Revoked** | 07/06/23 09:46 | 06/06/26 09:46 |
 | Global Takeoff, Inc | Enterprise Certificate | **❌ Revoked** | 05/06/25 04:55 | 04/06/28 04:55 |
 | Guangzhou Huahan Educational & Technology Co., Ltd. | Enterprise Certificate | **❌ Revoked** | 23/01/25 04:05 | 23/01/28 04:05 |
 | Tianjin University of Commerce | Enterprise Certificate | **❌ Revoked** | 26/02/24 01:15 | 25/02/27 01:15 |
@@ -18,8 +18,16 @@ Sources for these certificates include: [Loyahdev](https://github.com/loyahdev/c
 
 ---
 
+# Recommend Certificate 
+**China Telecommunications Corporation V2 - ❌ Revoked**
+
+---
+
 # Updates
-**11-12-25** Add the China Telecommunications Corporation certificate (2022). 
+
+**13-12-25** Add the China Telecommunications Corporation V2 certificate 🎉!  
+
+**11-12-25** Add the China Telecommunications Corporation certificate (2022).  
 
 **9-12-25** Sadly the Emirates Telecommunications certificate has been revoked! 😭
 
