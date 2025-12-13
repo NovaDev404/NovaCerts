@@ -26,9 +26,7 @@ Sources for these certificates include: [Loyahdev](https://github.com/loyahdev/c
 # Updates
 
 **13-12-25** Add the China Telecommunications Corporation V2 certificate 🎉!  
-
 **11-12-25** Add the China Telecommunications Corporation certificate (2022).  
-
 **9-12-25** Sadly the Emirates Telecommunications certificate has been revoked! 😭
 
 ---
