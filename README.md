@@ -4,17 +4,17 @@ Sources for these certificates include: [Loyahdev](https://github.com/loyahdev/c
 
 ---
 
-| Company | Type | Status | Valid From | Valid To |
-|:--------|:----|:------|:----------|:--------|
-| Etisalat - Emirates Telecommunications Corporation | Enterprise Certificate | **❌ Revoked** | 08/02/23 06:07 | 07/02/26 06:07 |
-| China Telecommunications Corporation V2 | Enterprise Certificate | **❌ Revoked** | 07/06/23 09:46 | 06/06/26 09:46 |
-| Global Takeoff, Inc | Enterprise Certificate | **❌ Revoked** | 05/06/25 04:55 | 04/06/28 04:55 |
-| Guangzhou Huahan Educational & Technology Co., Ltd. | Enterprise Certificate | **❌ Revoked** | 23/01/25 04:05 | 23/01/28 04:05 |
-| Tianjin University of Commerce | Enterprise Certificate | **❌ Revoked** | 26/02/24 01:15 | 25/02/27 01:15 |
-| China National Heavy Duty Truck Group Co., Ltd. | Enterprise Certificate | **❌ Revoked** | 30/10/23 02:41 | 29/10/26 02:41 |
-| BMW Brilliance Automotive Ltd. | Enterprise Certificate | **❌ Revoked** | 20/02/23 02:03 | 19/02/26 02:03 |
-| China Telecommunications Corporation | Enterprise Certificate | **❌ Revoked** | 19/08/22 15:33 | 18/08/25 15:33 |
-| Mylan Inc. | Enterprise Certificate | **❌ Revoked** | 12/01/23 05:40 | 11/01/26 05:40 |
+| Company | Type | Status | Valid From | Valid To | Download |
+|:--------|:----|:------|:----------|:--------|:--------|
+| Etisalat - Emirates Telecommunications Corporation | Enterprise Certificate | **❌ Revoked** | 08/02/23 06:07 | 07/02/26 06:07 | [Download Here](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FProStore-iOS%2Fcertificates%2Ftree%2Fmain%2FEtisalat%20-%20Emirates%20Telecommunications%20Corporation) |
+| China Telecommunications Corporation V2 | Enterprise Certificate | **❌ Revoked** | 07/06/23 09:46 | 06/06/26 09:46 | [Download Here](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FProStore-iOS%2Fcertificates%2Ftree%2Fmain%2FChina%20Telecommunications%20Corporation%20V2) |
+| Global Takeoff, Inc | Enterprise Certificate | **❌ Revoked** | 05/06/25 04:55 | 04/06/28 04:55 | [Download Here](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FProStore-iOS%2Fcertificates%2Ftree%2Fmain%2FGlobal%20Takeoff%2C%20Inc) |
+| Guangzhou Huahan Educational & Technology Co., Ltd. | Enterprise Certificate | **❌ Revoked** | 23/01/25 04:05 | 23/01/28 04:05 | [Download Here](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FProStore-iOS%2Fcertificates%2Ftree%2Fmain%2FGuangzhou%20Huahan%20Educational%20%26%20Technology%20Co.%2C%20Ltd.) |
+| Tianjin University of Commerce | Enterprise Certificate | **❌ Revoked** | 26/02/24 01:15 | 25/02/27 01:15 | [Download Here](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FProStore-iOS%2Fcertificates%2Ftree%2Fmain%2FTianjin%20University%20of%20Commerce) |
+| China National Heavy Duty Truck Group Co., Ltd. | Enterprise Certificate | **❌ Revoked** | 30/10/23 02:41 | 29/10/26 02:41 | [Download Here](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FProStore-iOS%2Fcertificates%2Ftree%2Fmain%2FChina%20National%20Heavy%20Duty%20Truck%20Group%20Co.%2C%20Ltd.) |
+| BMW Brilliance Automotive Ltd. | Enterprise Certificate | **❌ Revoked** | 20/02/23 02:03 | 19/02/26 02:03 | [Download Here](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FProStore-iOS%2Fcertificates%2Ftree%2Fmain%2FBMW%20Brilliance%20Automotive%20Ltd.) |
+| China Telecommunications Corporation | Enterprise Certificate | **❌ Revoked** | 19/08/22 15:33 | 18/08/25 15:33 | [Download Here](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FProStore-iOS%2Fcertificates%2Ftree%2Fmain%2FChina%20Telecommunications%20Corporation) |
+| Mylan Inc. | Enterprise Certificate | **❌ Revoked** | 12/01/23 05:40 | 11/01/26 05:40 | [Download Here](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FProStore-iOS%2Fcertificates%2Ftree%2Fmain%2FMylan%20Inc.) |
 
 ---
 
