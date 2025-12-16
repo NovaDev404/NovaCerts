@@ -19,7 +19,7 @@ View the certificate manager [here](https://prostore-ios.github.io/web/cert.html
 ---
 
 # Recommend Certificate 
-**China Telecommunications Corporation - ❌ Revoked**
+**Wasu Media & Network Co., Ltd. - ❌ Revoked**
 
 ---
 
