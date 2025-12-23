@@ -22,7 +22,7 @@ View the certificate manager [here](https://prostore-ios.github.io/cert.html)!
 ---
 
 # Recommend Certificate 
-****Commission on Elections - ✅ Signed** - ⚠️ Unknown**
+******Commission on Elections - ✅ Signed** - ⚠️ Unknown** - ⚠️ Unknown**
 
 ---
 
