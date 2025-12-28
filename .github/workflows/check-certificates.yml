@@ -33,49 +33,51 @@ jobs:
 
     - name: Normalize p12 passwords to ProStore
       run: |
-        set -e
+        set -euo pipefail
 
-        find . -type f -name "password.txt" | while read passfile; do
+        find . -type f -name "password.txt" -print0 | while IFS= read -r -d '' passfile; do
           dir="$(dirname "$passfile")"
-          current_pass="$(cat "$passfile" | tr -d '\r\n')"
+          current_pass="$(tr -d '\r\n' < "$passfile")"
 
           if [ "$current_pass" = "ProStore" ]; then
             echo "✔ Already ProStore: $dir"
             continue
           fi
 
-          p12_file="$(ls "$dir"/*.p12 2>/dev/null || true)"
+          mapfile -t p12s < <(find "$dir" -maxdepth 1 -name "*.p12")
 
-          if [ -z "$p12_file" ]; then
-            echo "⚠ No .p12 found in $dir, skipping"
+          if [ "${#p12s[@]}" -eq 0 ]; then
+            echo "⚠ No .p12 found in $dir"
             continue
           fi
 
-          echo "🔁 Updating password for $p12_file"
+          for p12_file in "${p12s[@]}"; do
+            echo "🔁 Updating password for $p12_file"
 
-          pem_file="$dir/temp.pem"
-          new_p12="$dir/temp.p12"
+            pem_file="$dir/temp.pem"
+            new_p12="$dir/temp.p12"
 
-          # 1️⃣ Extract cert + key to PEM
-          openssl pkcs12 \
-            -in "$p12_file" \
-            -out "$pem_file" \
-            -nodes \
-            -passin pass:"$current_pass"
+            # Extract (legacy fixes older Apple / enterprise certs)
+            openssl pkcs12 \
+              -legacy \
+              -in "$p12_file" \
+              -out "$pem_file" \
+              -nodes \
+              -passin pass:"$current_pass"
 
-          # 2️⃣ Re-export PEM to p12 with new password
-          openssl pkcs12 \
-            -export \
-            -in "$pem_file" \
-            -out "$new_p12" \
-            -passout pass:ProStore
+            # Re-export with new password
+            openssl pkcs12 \
+              -export \
+              -in "$pem_file" \
+              -out "$new_p12" \
+              -passout pass:ProStore
 
-          mv "$new_p12" "$p12_file"
-          rm -f "$pem_file"
+            mv "$new_p12" "$p12_file"
+            rm -f "$pem_file"
+          done
 
           echo "ProStore" > "$passfile"
-
-          echo "✅ Updated: $dir"
+          echo "✅ Updated passwords in $dir"
         done
         
     - name: Check certificate statuses
@@ -87,7 +89,7 @@ jobs:
         git config --global user.name 'GitHub Actions'
         git config --global user.email 'actions@github.com'
         git add .
-        if git diff --quiet HEAD -- README.md; then
+        if git diff --cached --quiet; then
           echo "No changes to commit"
         else
           git commit -m "📝 Update certificate statuses [$(date +'%Y-%m-%d %H:%M')]"
