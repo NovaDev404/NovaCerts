@@ -31,7 +31,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install requests beautifulsoup4 lxml
 
-    - name: Normalize p12 passwords to ProStore
+    - name: Normalize p12 passwords to NovaDev Hub
       run: |
         set -euo pipefail
 
@@ -39,8 +39,8 @@ jobs:
           dir="$(dirname "$passfile")"
           current_pass="$(tr -d '\r\n' < "$passfile")"
 
-          if [ "$current_pass" = "ProStore" ]; then
-            echo "✔ Already ProStore: $dir"
+          if [ "$current_pass" = "NovaDev Hub" ]; then
+            echo "✔ Already NovaDev Hub: $dir"
             continue
           fi
 
@@ -70,13 +70,13 @@ jobs:
               -export \
               -in "$pem_file" \
               -out "$new_p12" \
-              -passout pass:ProStore
+              -passout "pass:NovaDev Hub"
 
             mv "$new_p12" "$p12_file"
             rm -f "$pem_file"
           done
 
-          echo "ProStore" > "$passfile"
+          echo "NovaDev Hub" > "$passfile"
           echo "✅ Updated passwords in $dir"
         done
         
