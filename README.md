@@ -1,6 +1,6 @@
 # NovaDev Hub Certificates
 All of NovaDev Hub's iOS signing certificates!  
-Sources for these certificates include: [Loyahdev](https://github.com/loyahdev/certificates), [NezusHub](https://nezushub.vip/forums/public-certificates.7/)/[NabzClan](https://nabzclan.vip/resources/categories/ios-certificates.2/), [AppleJR](https://www.applejr.net/), [Khoindvn](https://khoindvn.io.vn/) and [Eojoo](https://github.com/eojoo/free-ios-certificates).  
+Sources for these certificates include: [Loyahdev](https://github.com/loyahdev/certificates), [NezusHub](https://nezushub.vip/forums/public-certificates.7/)/[NabzClan](https://nabzclan.vip/resources/categories/ios-certificates.2/), [AppleJR](https://www.applejr.net/), [Khoindvn](https://khoindvn.io.vn/), [MoKhajavi75](https://github.com/MoKhajavi75/iOS_Development_Certificates), and [Eojoo](https://github.com/eojoo/free-ios-certificates).  
 Most of these certificates originate from [AppleP12 Telegram](https://t.me/s/AppleP12).  
 Certificate statuses update every 30 minutes.  
 View the certificate manager [here](https://novadev.vip/resources/certificates/)!
@@ -9,6 +9,7 @@ View the certificate manager [here](https://novadev.vip/resources/certificates/)
 
 | Company | Type | Status | Valid From | Valid To | Download |
 |:--------|:----|:------|:----------|:--------|:--------|
+| Jakia Hajna | Distribution Certificate | ✅ Signed | ... | ... | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2Fmain%2FJakia+Hajna) |
 | Commission on Elections (United politics) | Enterprise Certificate | ❌ Revoked | Aug 25 01:31:00 2025 GMT | Aug 25 01:31:00 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2Fmain%2FCommission%20on%20Elections%20%28United%20politics%29) |
 | Commission on Elections (oadav) | Enterprise Certificate | ❌ Revoked | Apr 28 11:10:01 2025 GMT | Apr 17 16:19:09 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2Fmain%2FCommission%20on%20Elections%20%28oadav%29) |
 | Commission on Elections (Committee Supervision) | Enterprise Certificate | ❌ Revoked | Aug 25 01:40:45 2025 GMT | Aug 25 01:40:45 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2Fmain%2FCommission%20on%20Elections%20%28Committee%20Supervision%29) |
@@ -24,14 +25,15 @@ View the certificate manager [here](https://novadev.vip/resources/certificates/)
 ---
 
 # Recommend Certificate 
-**Commission on Elections (United politics) - ❌ Revoked**
+**Jakia Hajna - ❌ Revoked**
 
 ---
 
 # Updates
 
-**7-01-26** Repo has moved here 🎉!  
-**7-01-26** Sadly all of the Commission on Elections certificates have been revoked! 😭  
+**08-01-26** Add the Jakia Hajna certificate 🎉!  
+**07-01-26** Repo has moved here 🎉!  
+**07-01-26** Sadly all of the Commission on Elections certificates have been revoked! 😭  
 **29-12-25** Add all three version of the Commission on Elections certificate 🎉!  
 **27-12-25** Add the Commission on Elections V2 certificate to unblacklist users!  
 **20-12-25** Add the Commission on Elections certificate 🎉!  
@@ -40,7 +42,7 @@ View the certificate manager [here](https://novadev.vip/resources/certificates/)
 **14-12-25** Add Wasu Media & Network Co., Ltd. certificate from NabzClan 🥳!  
 **13-12-25** Add the China Telecommunications Corporation V2 certificate 🎉!  
 **11-12-25** Add the China Telecommunications Corporation certificate (2022).  
-**9-12-25** Sadly the Emirates Telecommunications certificate has been revoked! 😭
+**09-12-25** Sadly the Emirates Telecommunications certificate has been revoked! 😭
 
 ---
 
