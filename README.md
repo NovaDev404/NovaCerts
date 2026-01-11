@@ -7,7 +7,7 @@ View the certificate manager [here](https://novadev.vip/resources/certificates/)
 
 ---
 
-| Company / Folder | Type | Status | Valid From | Valid To | Download |
+| Company | Type | Status | Valid From | Valid To | Download |
 |:-----------------|:----:|:------:|:----------:|:--------:|:--------:|
 | Commission on Elections (Committee Supervision) | Enterprise Certificate | ❓ Unknown | — | — | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2F926aa78209104e32fd5ff4613f36621cb4c40f2e%2FCommission%20on%20Elections%2FCommission%20on%20Elections%20%28Committee%20Supervision%29) |
 | Commission on Elections (EMS Manage) | Enterprise Certificate | ❓ Unknown | — | — | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2F926aa78209104e32fd5ff4613f36621cb4c40f2e%2FCommission%20on%20Elections%2FCommission%20on%20Elections%20%28EMS%20Manage%29) |
