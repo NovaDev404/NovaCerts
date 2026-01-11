@@ -10,7 +10,7 @@ View the certificate manager [here](https://novadev.vip/resources/certificates/)
 | Company | Type | Status | Valid From | Valid To | Download |
 |:-----------------|:----:|:------:|:----------:|:--------:|:--------:|
 | Company | Type | Status | Valid From | Valid To | Download |
-|:-----------------|:----:|:------:|:----------:|:--------:|:--------:|
+|:-----------------|:----:| :------: | :----------: | :--------: | :--------: |
 | Commission on Elections (Committee Supervision) | Enterprise Certificate | ❓ Unknown | — | — | [Download](https://download-directory.github.io/?url=https://github.com/NovaDev404/certificates/tree/main/Commission%20on%20Elections/Commission%20on%20Elections%20(Committee%20Supervision)) |
 | Commission on Elections (EMS Manage) | Enterprise Certificate | ❓ Unknown | — | — | [Download](https://download-directory.github.io/?url=https://github.com/NovaDev404/certificates/tree/main/Commission%20on%20Elections/Commission%20on%20Elections%20(EMS%20Manage)) |
 | Commission on Elections (Report) | Enterprise Certificate | ❓ Unknown | — | — | [Download](https://download-directory.github.io/?url=https://github.com/NovaDev404/certificates/tree/main/Commission%20on%20Elections/Commission%20on%20Elections%20(Report)) |
@@ -37,7 +37,7 @@ View the certificate manager [here](https://novadev.vip/resources/certificates/)
 ---
 
 # Recommend Certificate 
-**Commission on Elections (Committee Supervision) - ⚠️ Unknown**
+**Company - ⚠️ Unknown**
 
 ---
 
