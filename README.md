@@ -18,7 +18,8 @@ View the certificate manager [here](https://novadev.vip/resources/certificates/)
 | Vietinbank | Enterprise Certificate | ❌ Revoked | Apr 24 10:51:01 2025 GMT | Apr 24 10:51:01 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2Fmain%2FVietinbank) |
 | China Telecommunications Corporation | Enterprise Certificate | ❌ Revoked | Apr 18 08:18:10 2025 GMT | Apr 18 08:18:10 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2Fmain%2FChina%20Telecommunications%20Corporation) |
 | Wuling Power Corporation | Enterprise Certificate | ❌ Revoked | May 14 09:44:48 2025 GMT | May 14 09:44:48 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2Fmain%2FWuling+Power+Corporation) |
-| Wasu Media & Network Co., Ltd. | Enterprise Certificate | ❌ Revoked | Jan 14 07:08:55 2025 GMT | Jan 12 05:42:11 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2Fmain%2FWasu%20Media%20%26%20Network%20Co.%2C%20Ltd.) |
+| Wasu Media & Networking Co., Ltd (jicengzhili_create20250114) | Enterprise Certificate | ❌ Revoked | Jan 14 07:08:55 2025 GMT | Jan 12 05:42:11 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2Fmain%2FWasu%20Media%20%26%20Networking%20Co.%2C%20Ltd%20(jicengzhili_create20250114)) |
+| Wasu Media & Networking Co., Ltd (com.wasu.demo) | Enterprise Certificate | ❌ Revoked | Jan 14 07:08:55 2025 GMT | Jan 12 05:42:11 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2Fmain%2FWasu%20Media%20%26%20Networking%20Co.%2C%20Ltd%20(com.wasu.demo)) |
 | Global Takeoff, Inc (Airtel Adhoc) | Enterprise Certificate | ❌ Revoked | Jun 15 02:26:31 2025 GMT | Jun 15 02:26:31 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2Fmain%2FGlobal%20Takeoff%2C%20Inc%20%28Airtel%20Adhoc%29) |
 | Global Takeoff, Inc (Deeplink) | Enterprise Certificate | ❌ Revoked | Jul 18 06:32:21 2025 GMT | Jul 18 06:32:21 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2Fmain%2FGlobal%20Takeoff%2C%20Inc%20%28Deeplink%29) |
 | Global Takeoff, Inc (Fairplay) | Enterprise Certificate | ❌ Revoked | Jul 14 12:13:49 2025 GMT | Jul 14 12:13:49 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2Fmain%2FGlobal%20Takeoff%2C%20Inc%20%28Fairplay%29) |
@@ -40,6 +41,7 @@ View the certificate manager [here](https://novadev.vip/resources/certificates/)
 
 # Updates
 
+**12-01-26** Add both Wasu Media & Networking Co variants!  
 **12-01-26** Add two new Commission on Elections certificates bringing the collection up to 5! 🥳  
 **12-01-26** Add all 8 of the Global Takeoff certs!  
 **07-01-26** Repo has moved here 🎉!  
