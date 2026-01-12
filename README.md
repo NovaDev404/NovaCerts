@@ -40,9 +40,11 @@ View the certificate manager [here](https://novadev.vip/resources/certificates/)
 
 # Updates
 
+**12-01-26** Add two new Commission on Elections certificates bringing the collection up to 5! 🥳  
+**12-01-26** Add all 8 of the Global Takeoff certs!  
 **07-01-26** Repo has moved here 🎉!  
 **07-01-26** Sadly all of the Commission on Elections certificates have been revoked! 😭  
-**29-12-25** Add all three version of the Commission on Elections certificate 🎉!  
+**29-12-25** Add all three version of the Commission on Elections certificate 🥳!  
 **27-12-25** Add the Commission on Elections V2 certificate to unblacklist users!  
 **20-12-25** Add the Commission on Elections certificate 🎉!  
 **16-12-25** Rename China Telecommunications Corporation V2.  
