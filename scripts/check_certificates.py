@@ -231,19 +231,6 @@ def update_readme_table(certificates, lines):
 
     return updated_lines
 
-def update_recommended_cert(lines, certificates):
-    """Update the recommended certificate section dynamically."""
-    for i, line in enumerate(lines):
-        if 'Recommend Certificate' in line and i + 1 < len(lines):
-            if certificates:
-                cert = certificates[0]
-                status = cert.get('status', '').lower()
-                company_name = cert.get('company', 'Unknown Company')
-                status_emoji = '✅' if status == 'valid' else ('❌' if status == 'revoked' else '⚠️')
-                status_word = "Signed" if status == 'valid' else ("Revoked" if status == 'revoked' else "Unknown")
-                lines[i + 1] = f"**{company_name} - {status_emoji} {status_word}**"
-    return lines
-
 def main():
     # Read README.md
     try:
@@ -282,7 +269,6 @@ def main():
             updated_certs.append(cert_info)
 
     updated_lines = update_readme_table(updated_certs, lines)
-    updated_lines = update_recommended_cert(updated_lines, updated_certs)
 
     with open('README.md', 'w', encoding='utf-8') as f:
         f.write('\n'.join(updated_lines))
