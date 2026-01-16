@@ -9,6 +9,7 @@ View the certificate manager [here](https://novadev.vip/resources/certificates/)
 
 | Company | Type | Status | Valid From | Valid To | Download |
 |:--------|:----|:------|:----------|:--------|:--------|
+| Qingdao Rural Commercial Bank Co., Ltd | Enterprise Certificate | ❌ Revoked | Apr 28 11:36:00 2025 GMT | Apr 28 11:36:00 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2Fmain%2FCommission%20on%20Elections%20%28EMS%20Manage%29) |
 | Commission on Elections (EMS Manage) | Enterprise Certificate | ❌ Revoked | Apr 28 11:36:00 2025 GMT | Apr 28 11:36:00 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2Fmain%2FCommission%20on%20Elections%20%28EMS%20Manage%29) |
 | Commission on Elections (Report) | Enterprise Certificate | ❌ Revoked | Apr 28 11:35:11 2025 GMT | Apr 28 11:35:11 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2Fmain%2FCommission%20on%20Elections%20%28Report%29) |
 | Commission on Elections (United politics) | Enterprise Certificate | ❌ Revoked | Aug 25 01:31:00 2025 GMT | Aug 25 01:31:00 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2Fmain%2FCommission%20on%20Elections%20%28United%20politics%29) |

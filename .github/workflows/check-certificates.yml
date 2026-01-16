@@ -1,11 +1,8 @@
-
 name: Check Certificate Statuses
 on:
   schedule:
     - cron: '*/30 * * * *'
-  # Also allow manual triggers
   workflow_dispatch:
-  # Run on pushes to main branch (optional)
   push:
     branches: [ main ]
 
@@ -57,7 +54,6 @@ jobs:
             pem_file="$dir/temp.pem"
             new_p12="$dir/temp.p12"
 
-            # Extract (legacy fixes older Apple / enterprise certs)
             openssl pkcs12 \
               -legacy \
               -in "$p12_file" \
@@ -65,7 +61,6 @@ jobs:
               -nodes \
               -passin pass:"$current_pass"
 
-            # Re-export with new password
             openssl pkcs12 \
               -export \
               -in "$pem_file" \
@@ -79,7 +74,67 @@ jobs:
           echo "NovaDev Hub" > "$passfile"
           echo "✅ Updated passwords in $dir"
         done
-        
+
+    - name: Correct Download Paths in README.md
+      run: |
+        python << 'EOF'
+        import re
+
+        readme_path = "README.md"
+        pattern = re.compile(
+            r"^\| (.*?) \| (.*?) \| (.*?) \| (.*?) \| (.*?) \| \[Download\]\((.*?)\) \|$"
+        )
+
+        def folder_name_from_cert_name(name):
+            # Strip spaces and unsafe chars for folder name from cert name (same as URL folder)
+            import urllib.parse
+            # Remove leading/trailing spaces and special URL encode
+            # Assuming the repo folder names are exact cert names
+            return urllib.parse.quote(name.strip())
+
+        with open(readme_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        new_lines = []
+        changed = False
+
+        for line in lines:
+            m = pattern.match(line.strip())
+            if m:
+                cert_name = m.group(1)
+                download_url = m.group(6)
+
+                # Extract folder from download URL query param
+                # Example: https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FNovaDev404%2Fcertificates%2Ftree%2Fmain%2FCommission%20on%20Elections%20%28EMS%20Manage%29
+                import urllib.parse
+                parsed = urllib.parse.urlparse(download_url)
+                query = urllib.parse.parse_qs(parsed.query)
+                if 'url' in query:
+                    decoded_url = urllib.parse.unquote(query['url'][0])
+                    folder = decoded_url.split("/")[-1]
+
+                    expected_folder = folder_name_from_cert_name(cert_name)
+
+                    if folder != expected_folder:
+                        # Replace folder name in the URL with the expected one
+                        corrected_url_part = decoded_url.rsplit("/", 1)[0] + "/" + expected_folder
+                        corrected_url = (
+                            f"{parsed.scheme}://{parsed.netloc}{parsed.path}?url="
+                            + urllib.parse.quote(corrected_url_part)
+                        )
+                        # Rebuild the line with corrected URL
+                        new_line = f"| {cert_name} | {m.group(2)} | {m.group(3)} | {m.group(4)} | {m.group(5)} | [Download]({corrected_url}) |\n"
+                        new_lines.append(new_line)
+                        changed = True
+                        print(f"Fixed download path for: {cert_name}")
+                        continue
+            new_lines.append(line)
+
+        if changed:
+            with open(readme_path, "w", encoding="utf-8") as f:
+                f.writelines(new_lines)
+        EOF
+
     - name: Check certificate statuses
       run: |
         python scripts/check_certificates.py
@@ -92,6 +147,6 @@ jobs:
         if git diff --cached --quiet; then
           echo "No changes to commit"
         else
-          git commit -m "📝 Update certificate statuses [$(date +'%Y-%m-%d %H:%M')]"
+          git commit -m "📝 Update certificate statuses and download paths [$(date +'%Y-%m-%d %H:%M')]"
           git push
         fi
