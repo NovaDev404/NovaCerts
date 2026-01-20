@@ -1,9 +1,9 @@
-# NovaDev Hub Certificates
+# NovaCerts
 All of NovaDev Hub's iOS signing certificates!  
 Sources for these certificates include: [Loyahdev](https://github.com/loyahdev/certificates), [NezusHub](https://nezushub.vip/forums/public-certificates.7/)/[NabzClan](https://nabzclan.vip/resources/categories/ios-certificates.2/), [AppleJR](https://www.applejr.net/), [Khoindvn](https://khoindvn.io.vn/), and [Eojoo](https://github.com/eojoo/free-ios-certificates).  
 Most of these certificates originate from [AppleP12 Telegram](https://t.me/s/AppleP12).  
 Certificate statuses update every 30 minutes.  
-View the certificate manager [here](https://novadev.vip/resources/certificates/)!
+View the certificate status [here](https://novadev.vip/resources/certificates/)!
 
 ---
 
@@ -38,6 +38,7 @@ View the certificate manager [here](https://novadev.vip/resources/certificates/)
 
 # Updates
 
+**21-01-26** Rename to NovaCerts!  
 **12-01-26** Add the Qingdao Rural Commercial Bank Co., Ltd and Luoyang Postal Administration certificates! 🎉  
 **12-01-26** Add both Wasu Media & Networking Co variants!  
 **12-01-26** Add two new Commission on Elections certificates bringing the collection up to 5! 🥳  
@@ -57,4 +58,4 @@ View the certificate manager [here](https://novadev.vip/resources/certificates/)
 ---
 
 # Disclaimer
-Apple or the certificate owner may revoke any of our Enterprise Developer Certificates at any time, causing apps signed with revoked certificates to stop working on iOS devices. Please make sure you have installed the [Anti-Revoke DNS](https://tools.nezushub.vip/dns-revoke-blocker/) on your iDevice. Use of shared Enterprise Certificates must comply with Apple’s terms and policies. Contributors and maintainers of this repository are not responsible for any misuse, policy violations, or resulting damages, losses, or legal consequences.
+Apple or the certificate owner may revoke any of our Enterprise Certificates at any time, causing apps signed with revoked certificates to stop working on iOS devices. Please make sure you have installed the [Anti-Revoke DNS](https://tools.nezushub.vip/dns-revoke-blocker/) on your iDevice. Use of shared Enterprise Certificates must comply with Apple’s terms and policies. Contributors and maintainers of this repository are not responsible for any misuse, policy violations, or resulting damages, losses, or legal consequences.
