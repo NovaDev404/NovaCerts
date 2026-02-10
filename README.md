@@ -9,6 +9,7 @@ View the certificate status [here](https://novadev.vip/resources/certificates/)!
 
 | Company | Type | Status | Valid From | Valid To | Download |
 |:--------|:----|:------|:----------|:--------|:--------|
+| Forevermark Marketing(Shanghai ) Limited | Enterprise Certificate | ❌ Revoked | Nov 22 02:21:56 2025 GMT | Nov 22 02:21:56 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/PowerChina%2520International%2520Group%2520Limited%2520%2528DoaTYw%2529) |
 | PowerChina International Group Limited (DoaTYw) | Enterprise Certificate | ❌ Revoked | Nov 22 02:21:56 2025 GMT | Nov 22 02:21:56 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/PowerChina%2520International%2520Group%2520Limited%2520%2528DoaTYw%2529) |
 | PowerChina International Group Limited (nj61nO) | Enterprise Certificate | ❌ Revoked | Nov 22 02:21:31 2025 GMT | Nov 22 02:21:31 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/PowerChina%2520International%2520Group%2520Limited%2520%2528nj61nO%2529) |
 | PowerChina International Group Limited (j3krPY) | Enterprise Certificate | ❌ Revoked | Nov 7 04:08:33 2025 GMT | Nov 7 04:08:33 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/PowerChina%2520International%2520Group%2520Limited%2520%2528j3krPY%2529) |
@@ -44,6 +45,7 @@ View the certificate status [here](https://novadev.vip/resources/certificates/)!
 
 # Updates
 
+**11-02-26** Add the Forevermark Marketing(Shanghai ) Limited certificate! 🎉  
 **08-02-26** Add 5 variations of the PowerChina International Group Limited certificates!  
 **30-01-26** Add the China Academy of Railway Sciences certificate! 🥳  
 **21-01-26** Rename to NovaCerts!  
