@@ -9,6 +9,7 @@ View the certificate status [here](https://novadev.vip/resources/certificates/)!
 
 | Company | Type | Status | Valid From | Valid To | Download |
 |:--------|:----|:------|:----------|:--------|:--------|
+| National Oilwell Varco, Inc | Enterprise Certificate | ❌ Revoked | Apr 22 14:56:19 2025 GMT | Apr 22 14:56:19 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/VIETNAM%2520AIRLINES%2520JSC) |
 | VIETNAM AIRLINES JSC | Enterprise Certificate | ❌ Revoked | Apr 22 14:56:19 2025 GMT | Apr 22 14:56:19 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/VIETNAM%2520AIRLINES%2520JSC) |
 | Forevermark Marketing(Shanghai ) Limited | Enterprise Certificate | ❌ Revoked | Nov 6 12:39:14 2025 GMT | Nov 6 12:39:14 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/Forevermark%2520Marketing%2528Shanghai%2520%2529%2520Limited) |
 | PowerChina International Group Limited (DoaTYw) | Enterprise Certificate | ❌ Revoked | Nov 22 02:21:56 2025 GMT | Nov 22 02:21:56 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/PowerChina%2520International%2520Group%2520Limited%2520%2528DoaTYw%2529) |
@@ -46,6 +47,7 @@ View the certificate status [here](https://novadev.vip/resources/certificates/)!
 
 # Updates
 
+**202-03-26** Add the National Oilwell Varco, Inc cert!  
 **26-02-26** Add the VIETNAM AIRLINES JSC certificate!  
 **11-02-26** Add the Forevermark Marketing(Shanghai ) Limited certificate! 🎉  
 **08-02-26** Add 5 variations of the PowerChina International Group Limited certificates!  
