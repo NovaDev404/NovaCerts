@@ -22,7 +22,7 @@ jobs:
           sudo apt-get install -y jq wget tar python3 coreutils unzip \
             libminizip1 libminizip-dev zlib1g
 
-      - name: Process folders
+      - name: Process folders (download, sign, write plist, per-folder cleanup)
         run: |
           set -euo pipefail
 
@@ -43,15 +43,21 @@ jobs:
 
           for d in */ ; do
             DIR=${d%/}
+            # skip ignored folders
             if [[ "$DIR" == ".github" || "$DIR" == "scripts" ]]; then
               continue
             fi
 
             echo "Processing directory: $DIR"
+
             mkdir -p "$DIR/NexStore"
 
+            # skip if both files already exist
             if [[ -f "$DIR/NexStore/NexStore.ipa" && -f "$DIR/NexStore/install.plist" ]]; then
               echo "Already exists, skipping: $DIR"
+              # ensure no leftover zsign artifacts linger in that folder
+              rm -f "$DIR/NexStore/zsign" "$DIR/NexStore/zsign.tgz" "$DIR/NexStore/zsign.tgz" "$DIR/NexStore/zsign-linux-*" || true
+              rm -rf "$DIR/NexStore/zsign"* || true
               continue
             fi
 
@@ -65,12 +71,22 @@ jobs:
             tar -xzf zsign.tgz
             chmod +x zsign || true
 
+            # debug linked libs if binary not runnable
+            if ! ldd ./zsign >/dev/null 2>&1; then
+              echo "ldd for zsign:"
+              ldd ./zsign || true
+            fi
+
+            # locate signing materials in parent folder
             P12=$(bash -lc 'shopt -s nullglob; for f in ../*.p12 ../*.pfx; do echo "$f"; break; done' || true)
             PROV=$(bash -lc 'shopt -s nullglob; for f in ../*.mobileprovision; do echo "$f"; break; done' || true)
             PASSFILE=$(bash -lc 'shopt -s nullglob; for f in ../password.txt ../*.txt; do echo "$f"; break; done' || true)
 
             if [[ -z "$P12" || -z "$PROV" || -z "$PASSFILE" ]]; then
               echo "Missing signing files (.p12/.pfx, .mobileprovision, password.txt) for $DIR — skipping"
+              # per-folder cleanup of zsign artifacts even on skip
+              rm -f zsign zsign.tgz zsign-linux-* || true
+              rm -rf zsign* || true
               cd ../..
               continue
             fi
@@ -81,10 +97,14 @@ jobs:
             if ! ./zsign -k "$P12" -m "$PROV" -p "$PASSWORD" -o NexStore-signed.ipa NexStore.ipa ; then
               echo "zsign failed for $DIR"
               ldd ./zsign || true
+              # cleanup artifacts for this folder before moving on
+              rm -f zsign zsign.tgz zsign-linux-* || true
+              rm -rf zsign* || true
               cd ../..
               continue
             fi
 
+            # replace unsigned ipa with signed one
             rm -f NexStore.ipa
             mv NexStore-signed.ipa NexStore.ipa
 
@@ -92,10 +112,27 @@ jobs:
             export NS_VERSION="$VERSION"
 
             echo "Writing install.plist using scripts/write_plist.py..."
+            # assumes scripts/write_plist.py is committed in repo root
             python3 ../../scripts/write_plist.py
+
+            # per-folder cleanup: remove zsign and archive
+            echo "Cleaning up zsign artifacts in $DIR/NexStore ..."
+            rm -f zsign zsign.tgz zsign-linux-* || true
+            rm -rf zsign* || true
 
             cd ../..
           done
+
+      - name: Final cleanup (remove any leftover zsign artifacts anywhere in workspace)
+        run: |
+          set -euo pipefail
+          echo "Final cleanup: removing any zsign/zsign.tgz/zsign-linux-* files or dirs in workspace"
+          # remove common archive names and extracted binaries
+          find . -type f \( -iname 'zsign' -o -iname 'zsign.tgz' -o -iname 'zsign-linux-*.tar.gz' -o -iname 'zsign-*.tgz' \) -print -exec rm -f {} +
+          # remove directories named zsign* just in case
+          find . -type d -iname 'zsign*' -print -exec rm -rf {} +
+          # also remove any stray extracted files named zsign in deeper folders
+          find . -type f -iname 'zsign' -print -exec rm -f {} +
 
       - name: Commit new files
         uses: EndBug/add-and-commit@v9
