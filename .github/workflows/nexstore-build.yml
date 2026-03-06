@@ -15,10 +15,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install dependencies (including libminizip)
         run: |
+          set -euo pipefail
           sudo apt-get update
-          sudo apt-get install -y jq wget tar python3 coreutils
+          # install utilities + minizip runtime so zsign can load libminizip.so.1
+          sudo apt-get install -y jq wget tar python3 coreutils \
+            libminizip1 libminizip-dev zlib1g
 
       - name: Process folders
         run: |
@@ -65,6 +68,12 @@ jobs:
             tar -xzf zsign.tgz
             chmod +x zsign || true
 
+            # If zsign still errors, print linked libraries to help debug
+            if ! ldd ./zsign >/dev/null 2>&1; then
+              echo "ldd output for zsign:"
+              ldd ./zsign || true
+            fi
+
             # find signing materials in the folder's parent
             P12=$(bash -lc 'shopt -s nullglob; for f in ../*.p12 ../*.pfx; do echo "$f"; break; done' || true)
             PROV=$(bash -lc 'shopt -s nullglob; for f in ../*.mobileprovision; do echo "$f"; break; done' || true)
@@ -79,11 +88,12 @@ jobs:
             PASSWORD=$(cat "$PASSFILE")
 
             echo "Signing NexStore.ipa..."
-            ./zsign -k "$P12" -m "$PROV" -p "$PASSWORD" -o NexStore-signed.ipa NexStore.ipa || {
-              echo "zsign failed for $DIR"
+            if ! ./zsign -k "$P12" -m "$PROV" -p "$PASSWORD" -o NexStore-signed.ipa NexStore.ipa ; then
+              echo "zsign failed for $DIR — printing ldd for debugging"
+              ldd ./zsign || true
               cd ../..
               continue
-            }
+            fi
 
             rm -f NexStore.ipa
             mv NexStore-signed.ipa NexStore.ipa
