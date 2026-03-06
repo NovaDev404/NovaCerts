@@ -19,8 +19,7 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get update
-          # install utilities + minizip runtime so zsign can load libminizip.so.1
-          sudo apt-get install -y jq wget tar python3 coreutils \
+          sudo apt-get install -y jq wget tar python3 coreutils unzip \
             libminizip1 libminizip-dev zlib1g
 
       - name: Process folders
@@ -29,7 +28,7 @@ jobs:
 
           BASE_RAW="https://raw.githubusercontent.com/${{ github.repository }}/main"
 
-          # get latest release info
+          # fetch latest NexStore release info
           RELEASE_JSON=$(curl -s https://api.github.com/repos/NovaDev404/NexStore/releases/latest)
           IPA_URL=$(echo "$RELEASE_JSON" | jq -r '.assets[] | select(.name | test("(?i)\\.ipa$")) | .browser_download_url' | head -n1)
           VERSION_RAW=$(echo "$RELEASE_JSON" | jq -r '.name')
@@ -44,13 +43,11 @@ jobs:
 
           for d in */ ; do
             DIR=${d%/}
-            # skip ignored folders
             if [[ "$DIR" == ".github" || "$DIR" == "scripts" ]]; then
               continue
             fi
 
             echo "Processing directory: $DIR"
-
             mkdir -p "$DIR/NexStore"
 
             if [[ -f "$DIR/NexStore/NexStore.ipa" && -f "$DIR/NexStore/install.plist" ]]; then
@@ -61,20 +58,13 @@ jobs:
             cd "$DIR/NexStore"
 
             echo "Downloading NexStore.ipa..."
-            wget -q "$IPA_URL" -O NexStore.ipa
+            wget -q --show-progress "$IPA_URL" -O NexStore.ipa
 
             echo "Downloading zsign..."
             wget -q https://github.com/zhlynn/zsign/releases/download/v0.9.1/zsign-linux-x86_64.tar.gz -O zsign.tgz
             tar -xzf zsign.tgz
             chmod +x zsign || true
 
-            # If zsign still errors, print linked libraries to help debug
-            if ! ldd ./zsign >/dev/null 2>&1; then
-              echo "ldd output for zsign:"
-              ldd ./zsign || true
-            fi
-
-            # find signing materials in the folder's parent
             P12=$(bash -lc 'shopt -s nullglob; for f in ../*.p12 ../*.pfx; do echo "$f"; break; done' || true)
             PROV=$(bash -lc 'shopt -s nullglob; for f in ../*.mobileprovision; do echo "$f"; break; done' || true)
             PASSFILE=$(bash -lc 'shopt -s nullglob; for f in ../password.txt ../*.txt; do echo "$f"; break; done' || true)
@@ -89,7 +79,7 @@ jobs:
 
             echo "Signing NexStore.ipa..."
             if ! ./zsign -k "$P12" -m "$PROV" -p "$PASSWORD" -o NexStore-signed.ipa NexStore.ipa ; then
-              echo "zsign failed for $DIR — printing ldd for debugging"
+              echo "zsign failed for $DIR"
               ldd ./zsign || true
               cd ../..
               continue
@@ -101,13 +91,8 @@ jobs:
             export IPA_LINK="${BASE_RAW}/${DIR}/NexStore/NexStore.ipa"
             export NS_VERSION="$VERSION"
 
-            echo "Writing install.plist (safe method using base64-decoded Python script)..."
-
-            # Base64-encoded Python script (decodes into write_plist.py and runs it)
-            echo 'aW1wb3J0IG9zCmlwYSA9IG9zLmVudmlyb24uZ2V0KCdJUEFfTElOSycsJycpCnZlcnNpb24gPSBvcy5lbnZpcm9uLmdldCgnTlNfVkVSU0lPTicsJycpCgpwbGlzdCA9IGYnJyciPD94bWwgdj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCFET0NUWVBFIFBMSVNUIFBVQkxJQyAiLS8vQXBwbGUvL0RUID0gJ0hUVFA6Ly8vd3d3LmFwcGxlLmNvbS9EVFRzL1Byb3BlcnR5TGlzdC0xLjAuZHRkJz4KPHBsaXN0IHZlcnNpb249IjEuMCI+CiAgPGRpY3Q+CiAgICA8a2V5Pml0ZW1zPC9rZXk+CiAgICA8YXJyYXk+CiAgICAgICAgPGRpY3Q+CiAgICAgICAgICA8a2V5PmFzc2V0czwva2V5PgogICAgICAgICAgPGEKICAgICAgICAgICAgICA8a2V5PmtpbmQ8L2tleT4KICAgICAgICAgICAgICA8c3RyaW5nPXNvZnR3YXJlLXBhY2thZ2U8L3N0cmluZz4KICAgICAgICAgICAgICA8a2V5PnVybDwva2V5PgogICAgICAgICAgICAgICAgPHN0cmluZz57aXBhfTwvc3RyaW5nPgogICAgICAgICAgICA8L2RpY3Q+CiAgICAgICAgICAgIDxkaWN0PgogICAgICAgICAgICAgIDxrZXk+a2luZDwv a2V5PgogICAgICAgICAgICAgIDxzdHJpbmc+ZGlzcGxheS1pbWFnZTwvc3RyaW5nPgogICAgICAgICAgICAgIDxrZXk+dXJsPC9rZXk+CiAgICAgICAgICAgICAgICA8c3RyaW5nPmh0dHBzOi8vcmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbS9Ob3ZhRGV2NDA0L05leFN0b3JlL3JlZnMvYmVhZHMv bWFpbi9OZXhTdG9yZS9SZXNvdXJjZXMvQXBwSWNvbi5pY29uL0Fzc2V0cy9OZXhTdG9yZS5wbmc8L3N0cmluZz4KICAgICAgICAgICAgPC9kaWN0PgogICAgICAgICAgICA8ZGljdD4KICAgICAgICAgICAgICA8a2V5PmtpbmQ8L2tleT4KICAgICAgICAgICAgICA8c3RyaW5nPmZ1bGwtc2l6ZS1pbWFnZTwvc3RyaW5nPgogICAgICAgICAgICAgIDxrZXk+dXJsPC9rZXk+CiAgICAgICAgICAgICAgICA8c3RyaW5nIGh0dHBzOi8vcmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbS9Ob3ZhRGV2NDA0L05leFN0b3JlL3JlZnMvYmVhZHMv bWFpbi9OZXhTdG9yZS9SZXNvdXJjZXMvQXBwSWNvbi5pY29uL0Fzc2V0cy9OZXhTdG9yZS5wbmc8L3N0cmluZz4KICAgICAgICAgICAgPC9kaWN0PgogICAgICAgICAgICA8L2FycmF5PgogICAgICAgICAgICA8a2V5 bWV0YWRhdGE8L2tleT4KICAgICAgICAgICAgPGRpY3Q+CiAgICAgICAgICAgICAgICA8a2V5PmJ1bmRsZS1pZGVudGlmaWVyPC9rZXk+CiAgICAgICAgICAgICAgICA8c3RyaW5nPmNvbS5ub3ZhZGV2Lm5leHN0b3JlPC9zdHJpbmc+CiAgICAgICAgICAgICAgICA8a2V5PmJ1bmRsZS12ZXJzaW9uPC9rZXk+CiAgICAgICAgICAgICAgICA8c3RyaW5nPnt2ZXJzaW9ufTwvc3RyaW5nPgogICAgICAgICAgICAgICAgPGtleT5raW5kPC9rZXk+CiAgICAgICAgICAgICAgICA8c3RyaW5nPnNvZnR3YXJlPC9zdHJpbmc+CiAgICAgICAgICAgICAgICA8a2V5PnRpdGxlPC9rZXk+CiAgICAgICAgICAgICAgICA8c3RyaW5nPk5leFN0b3JlPC9zdHJpbmc+CiAgICAgICAgICAgICAgPC9kaWN0PgogICAgICAgICAgICA8L2Rpc3Q+CiAgICAgIDwvYXJyYXk+CiAgICA8L2RpY3Q+CiA8L3BsaXN0PgogICAgICcKCi13aXRoIG9wZW4oJ2luc3RhbGwucGxpc3QnLCAndycgKSBhcyBmOgogICAgZi53cml0ZShwbGlzdCkK' > write_plist.b64
-            base64 -d write_plist.b64 > write_plist.py
-            python3 write_plist.py
-            rm -f write_plist.py write_plist.b64
+            echo "Writing install.plist using scripts/write_plist.py..."
+            python3 ../../scripts/write_plist.py
 
             cd ../..
           done
