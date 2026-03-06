@@ -4,30 +4,29 @@ on:
   push:
     branches: [ main ]
     paths-ignore:
-      - '**/NexStore/**'                          # ignore any NexStore subfolder
-      - '.github/workflows/nexstore-build.yml'   # ignore this workflow file itself
+      - '**/NexStore/**'
+      - '.github/workflows/nexstore-build.yml'
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
-          set -euo pipefail
           sudo apt-get update
-          sudo apt-get install -y jq wget tar python3
+          sudo apt-get install -y jq wget tar python3 coreutils
 
       - name: Process folders
         run: |
           set -euo pipefail
 
-          # Raw file base URL (assumes main branch)
-          REPO_RAW_BASE="https://raw.githubusercontent.com/${{ github.repository }}/main"
+          BASE_RAW="https://raw.githubusercontent.com/${{ github.repository }}/main"
 
-          # get latest release info from NexStore repo
+          # get latest release info
           RELEASE_JSON=$(curl -s https://api.github.com/repos/NovaDev404/NexStore/releases/latest)
           IPA_URL=$(echo "$RELEASE_JSON" | jq -r '.assets[] | select(.name | test("(?i)\\.ipa$")) | .browser_download_url' | head -n1)
           VERSION_RAW=$(echo "$RELEASE_JSON" | jq -r '.name')
@@ -37,121 +36,73 @@ jobs:
             VERSION="$VERSION_RAW"
           fi
 
-          echo "NexStore version: $VERSION"
+          echo "Using release version: $VERSION"
           echo "IPA URL: $IPA_URL"
 
-          for dir in */ ; do
-            dir=${dir%/}
+          for d in */ ; do
+            DIR=${d%/}
             # skip ignored folders
-            if [[ "$dir" == ".github" || "$dir" == "scripts" ]]; then
+            if [[ "$DIR" == ".github" || "$DIR" == "scripts" ]]; then
               continue
             fi
 
-            echo "=== Processing folder: $dir ==="
-            mkdir -p "$dir/NexStore"
+            echo "Processing directory: $DIR"
 
-            # Skip if both files exist already
-            if [[ -f "$dir/NexStore/NexStore.ipa" && -f "$dir/NexStore/install.plist" ]]; then
-              echo "NexStore and install.plist already exist in $dir — skipping."
+            mkdir -p "$DIR/NexStore"
+
+            if [[ -f "$DIR/NexStore/NexStore.ipa" && -f "$DIR/NexStore/install.plist" ]]; then
+              echo "Already exists, skipping: $DIR"
               continue
             fi
 
-            cd "$dir/NexStore" || (echo "failed to cd into $dir/NexStore" && exit 1)
+            cd "$DIR/NexStore"
 
             echo "Downloading NexStore.ipa..."
-            wget -q --show-progress "$IPA_URL" -O NexStore.ipa
+            wget -q "$IPA_URL" -O NexStore.ipa
 
             echo "Downloading zsign..."
-            wget -q https://github.com/zhlynn/zsign/releases/download/v0.9.1/zsign-linux-x86_64.tar.gz -O zsign.tar.gz
-            tar -xzf zsign.tar.gz
+            wget -q https://github.com/zhlynn/zsign/releases/download/v0.9.1/zsign-linux-x86_64.tar.gz -O zsign.tgz
+            tar -xzf zsign.tgz
             chmod +x zsign || true
 
-            # locate signing materials from parent folder (one of .p12/.pfx, .mobileprovision, and a password file)
-            P12_FILE=$(bash -lc 'shopt -s nullglob; for f in ../*.p12 ../*.pfx; do echo "$f"; break; done')
-            PROV_FILE=$(bash -lc 'shopt -s nullglob; for f in ../*.mobileprovision; do echo "$f"; break; done')
-            PASS_FILE=$(bash -lc 'shopt -s nullglob; for f in ../password.txt ../*.txt; do echo "$f"; break; done')
+            # find signing materials in the folder's parent
+            P12=$(bash -lc 'shopt -s nullglob; for f in ../*.p12 ../*.pfx; do echo "$f"; break; done' || true)
+            PROV=$(bash -lc 'shopt -s nullglob; for f in ../*.mobileprovision; do echo "$f"; break; done' || true)
+            PASSFILE=$(bash -lc 'shopt -s nullglob; for f in ../password.txt ../*.txt; do echo "$f"; break; done' || true)
 
-            if [[ -z "$P12_FILE" || -z "$PROV_FILE" || -z "$PASS_FILE" ]]; then
-              echo "Missing signing materials in $dir (need .p12/.pfx, .mobileprovision and password.txt). Skipping."
-              cd - >/dev/null || true
+            if [[ -z "$P12" || -z "$PROV" || -z "$PASSFILE" ]]; then
+              echo "Missing signing files (.p12/.pfx, .mobileprovision, password.txt) for $DIR — skipping"
+              cd ../..
               continue
             fi
 
-            PASSWORD=$(cat "$PASS_FILE")
+            PASSWORD=$(cat "$PASSFILE")
 
-            echo "Signing NexStore.ipa with zsign..."
-            ./zsign -k "$P12_FILE" -m "$PROV_FILE" -p "$PASSWORD" -o NexStore-signed.ipa NexStore.ipa || {
-              echo "zsign failed in $dir"; cd - >/dev/null || true; continue;
+            echo "Signing NexStore.ipa..."
+            ./zsign -k "$P12" -m "$PROV" -p "$PASSWORD" -o NexStore-signed.ipa NexStore.ipa || {
+              echo "zsign failed for $DIR"
+              cd ../..
+              continue
             }
 
-            # Replace unsigned ipa with signed one (as requested)
             rm -f NexStore.ipa
             mv NexStore-signed.ipa NexStore.ipa
 
-            # Construct the public raw URL (assumes commit to main later)
-            IPA_LINK="${REPO_RAW_BASE}/${dir}/NexStore/NexStore.ipa"
-            export IPA_LINK
-            export VERSION
+            export IPA_LINK="${BASE_RAW}/${DIR}/NexStore/NexStore.ipa"
+            export NS_VERSION="$VERSION"
 
-            echo "Writing install.plist (using Python writer)..."
+            echo "Writing install.plist (safe method using base64-decoded Python script)..."
 
-            # Use Python to write a well-formed plist (avoids YAML/heredoc quoting issues)
-            python3 - <<'PY'
-import os
-ipa = os.environ['IPA_LINK']
-version = os.environ['VERSION']
-content = f'''<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>items</key>
-    <array>
-        <dict>
-            <key>assets</key>
-            <array>
-                <dict>
-                    <key>kind</key>
-                    <string>software-package</string>
-                    <key>url</key>
-                    <string>{ipa}</string>
-                </dict>
-                <dict>
-                    <key>kind</key>
-                    <string>display-image</string>
-                    <key>url</key>
-                    <string>https://raw.githubusercontent.com/NovaDev404/NexStore/refs/heads/main/NexStore/Resources/AppIcon.icon/Assets/NexStore.png</string>
-                </dict>
-                <dict>
-                    <key>kind</key>
-                    <string>full-size-image</string>
-                    <key>url</key>
-                    <string>https://raw.githubusercontent.com/NovaDev404/NexStore/refs/heads/main/NexStore/Resources/AppIcon.icon/Assets/NexStore.png</string>
-                </dict>
-            </array>
-            <key>metadata</key>
-            <dict>
-                <key>bundle-identifier</key>
-                <string>com.novadev.nexstore</string>
-                <key>bundle-version</key>
-                <string>{version}</string>
-                <key>kind</key>
-                <string>software</string>
-                <key>title</key>
-                <string>NexStore</string>
-            </dict>
-        </dict>
-    </array>
-</dict>
-</plist>
-'''
-open('install.plist', 'w', encoding='utf-8').write(content)
-PY
+            # Base64-encoded Python script (decodes into write_plist.py and runs it)
+            echo 'aW1wb3J0IG9zCmlwYSA9IG9zLmVudmlyb24uZ2V0KCdJUEFfTElOSycsJycpCnZlcnNpb24gPSBvcy5lbnZpcm9uLmdldCgnTlNfVkVSU0lPTicsJycpCgpwbGlzdCA9IGYnJyciPD94bWwgdj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCFET0NUWVBFIFBMSVNUIFBVQkxJQyAiLS8vQXBwbGUvL0RUID0gJ0hUVFA6Ly8vd3d3LmFwcGxlLmNvbS9EVFRzL1Byb3BlcnR5TGlzdC0xLjAuZHRkJz4KPHBsaXN0IHZlcnNpb249IjEuMCI+CiAgPGRpY3Q+CiAgICA8a2V5Pml0ZW1zPC9rZXk+CiAgICA8YXJyYXk+CiAgICAgICAgPGRpY3Q+CiAgICAgICAgICA8a2V5PmFzc2V0czwva2V5PgogICAgICAgICAgPGEKICAgICAgICAgICAgICA8a2V5PmtpbmQ8L2tleT4KICAgICAgICAgICAgICA8c3RyaW5nPXNvZnR3YXJlLXBhY2thZ2U8L3N0cmluZz4KICAgICAgICAgICAgICA8a2V5PnVybDwva2V5PgogICAgICAgICAgICAgICAgPHN0cmluZz57aXBhfTwvc3RyaW5nPgogICAgICAgICAgICA8L2RpY3Q+CiAgICAgICAgICAgIDxkaWN0PgogICAgICAgICAgICAgIDxrZXk+a2luZDwv a2V5PgogICAgICAgICAgICAgIDxzdHJpbmc+ZGlzcGxheS1pbWFnZTwvc3RyaW5nPgogICAgICAgICAgICAgIDxrZXk+dXJsPC9rZXk+CiAgICAgICAgICAgICAgICA8c3RyaW5nPmh0dHBzOi8vcmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbS9Ob3ZhRGV2NDA0L05leFN0b3JlL3JlZnMvYmVhZHMv bWFpbi9OZXhTdG9yZS9SZXNvdXJjZXMvQXBwSWNvbi5pY29uL0Fzc2V0cy9OZXhTdG9yZS5wbmc8L3N0cmluZz4KICAgICAgICAgICAgPC9kaWN0PgogICAgICAgICAgICA8ZGljdD4KICAgICAgICAgICAgICA8a2V5PmtpbmQ8L2tleT4KICAgICAgICAgICAgICA8c3RyaW5nPmZ1bGwtc2l6ZS1pbWFnZTwvc3RyaW5nPgogICAgICAgICAgICAgIDxrZXk+dXJsPC9rZXk+CiAgICAgICAgICAgICAgICA8c3RyaW5nIGh0dHBzOi8vcmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbS9Ob3ZhRGV2NDA0L05leFN0b3JlL3JlZnMvYmVhZHMv bWFpbi9OZXhTdG9yZS9SZXNvdXJjZXMvQXBwSWNvbi5pY29uL0Fzc2V0cy9OZXhTdG9yZS5wbmc8L3N0cmluZz4KICAgICAgICAgICAgPC9kaWN0PgogICAgICAgICAgICA8L2FycmF5PgogICAgICAgICAgICA8a2V5 bWV0YWRhdGE8L2tleT4KICAgICAgICAgICAgPGRpY3Q+CiAgICAgICAgICAgICAgICA8a2V5PmJ1bmRsZS1pZGVudGlmaWVyPC9rZXk+CiAgICAgICAgICAgICAgICA8c3RyaW5nPmNvbS5ub3ZhZGV2Lm5leHN0b3JlPC9zdHJpbmc+CiAgICAgICAgICAgICAgICA8a2V5PmJ1bmRsZS12ZXJzaW9uPC9rZXk+CiAgICAgICAgICAgICAgICA8c3RyaW5nPnt2ZXJzaW9ufTwvc3RyaW5nPgogICAgICAgICAgICAgICAgPGtleT5raW5kPC9rZXk+CiAgICAgICAgICAgICAgICA8c3RyaW5nPnNvZnR3YXJlPC9zdHJpbmc+CiAgICAgICAgICAgICAgICA8a2V5PnRpdGxlPC9rZXk+CiAgICAgICAgICAgICAgICA8c3RyaW5nPk5leFN0b3JlPC9zdHJpbmc+CiAgICAgICAgICAgICAgPC9kaWN0PgogICAgICAgICAgICA8L2Rpc3Q+CiAgICAgIDwvYXJyYXk+CiAgICA8L2RpY3Q+CiA8L3BsaXN0PgogICAgICcKCi13aXRoIG9wZW4oJ2luc3RhbGwucGxpc3QnLCAndycgKSBhcyBmOgogICAgZi53cml0ZShwbGlzdCkK' > write_plist.b64
+            base64 -d write_plist.b64 > write_plist.py
+            python3 write_plist.py
+            rm -f write_plist.py write_plist.b64
 
-            echo "Finished processing $dir"
-            cd ../../
+            cd ../..
           done
 
-      - name: Commit changes
+      - name: Commit new files
         uses: EndBug/add-and-commit@v9
         with:
           add: "."
