@@ -2,9 +2,11 @@ name: NexStore Auto Builder
 
 on:
   push:
+    branches: [ main ]
     paths-ignore:
-      - '.github/**'
-      - 'scripts/**'
+      - '**/NexStore/**'                          # ignore any NexStore subfolder
+      - '.github/workflows/nexstore-build.yml'   # ignore this workflow file itself
+  workflow_dispatch:
 
 jobs:
   build:
@@ -14,55 +16,60 @@ jobs:
 
       - name: Install dependencies
         run: |
+          set -euo pipefail
           sudo apt-get update
-          sudo apt-get install -y jq wget tar
+          sudo apt-get install -y jq wget tar python3
 
       - name: Process folders
         run: |
-          REPO_URL="https://raw.githubusercontent.com/${{ github.repository }}/main"
-          # get latest release info
+          set -euo pipefail
+
+          # Raw file base URL (assumes main branch)
+          REPO_RAW_BASE="https://raw.githubusercontent.com/${{ github.repository }}/main"
+
+          # get latest release info from NexStore repo
           RELEASE_JSON=$(curl -s https://api.github.com/repos/NovaDev404/NexStore/releases/latest)
           IPA_URL=$(echo "$RELEASE_JSON" | jq -r '.assets[] | select(.name | test("(?i)\\.ipa$")) | .browser_download_url' | head -n1)
           VERSION_RAW=$(echo "$RELEASE_JSON" | jq -r '.name')
-          # try to extract vX.Y.Z or fallback to raw name
           if [[ "$VERSION_RAW" =~ v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
             VERSION="${BASH_REMATCH[1]}"
           else
             VERSION="$VERSION_RAW"
           fi
 
-          echo "Latest NexStore release: $VERSION"
+          echo "NexStore version: $VERSION"
           echo "IPA URL: $IPA_URL"
 
           for dir in */ ; do
             dir=${dir%/}
+            # skip ignored folders
             if [[ "$dir" == ".github" || "$dir" == "scripts" ]]; then
               continue
             fi
 
-            echo "=== Checking folder: $dir ==="
+            echo "=== Processing folder: $dir ==="
             mkdir -p "$dir/NexStore"
 
-            # Skip if both files exist
+            # Skip if both files exist already
             if [[ -f "$dir/NexStore/NexStore.ipa" && -f "$dir/NexStore/install.plist" ]]; then
-              echo "NexStore and install.plist already exist in $dir, skipping."
+              echo "NexStore and install.plist already exist in $dir — skipping."
               continue
             fi
 
-            cd "$dir/NexStore" || (echo "failed to cd to $dir/NexStore" && exit 1)
+            cd "$dir/NexStore" || (echo "failed to cd into $dir/NexStore" && exit 1)
 
             echo "Downloading NexStore.ipa..."
-            wget -q --show-progress "$IPA_URL" -O NexStore.ipa || (echo "failed to download ipa" && exit 1)
+            wget -q --show-progress "$IPA_URL" -O NexStore.ipa
 
             echo "Downloading zsign..."
             wget -q https://github.com/zhlynn/zsign/releases/download/v0.9.1/zsign-linux-x86_64.tar.gz -O zsign.tar.gz
             tar -xzf zsign.tar.gz
             chmod +x zsign || true
 
-            # find the p12, mobileprovision and password files in the parent folder
-            P12_FILE=$(bash -c 'shopt -s nullglob; for f in ../*.p12 ../*.pfx; do echo "$f"; break; done')
-            PROV_FILE=$(bash -c 'shopt -s nullglob; for f in ../*.mobileprovision; do echo "$f"; break; done')
-            PASS_FILE=$(bash -c 'shopt -s nullglob; for f in ../password.txt ../*.txt; do echo "$f"; break; done')
+            # locate signing materials from parent folder (one of .p12/.pfx, .mobileprovision, and a password file)
+            P12_FILE=$(bash -lc 'shopt -s nullglob; for f in ../*.p12 ../*.pfx; do echo "$f"; break; done')
+            PROV_FILE=$(bash -lc 'shopt -s nullglob; for f in ../*.mobileprovision; do echo "$f"; break; done')
+            PASS_FILE=$(bash -lc 'shopt -s nullglob; for f in ../password.txt ../*.txt; do echo "$f"; break; done')
 
             if [[ -z "$P12_FILE" || -z "$PROV_FILE" || -z "$PASS_FILE" ]]; then
               echo "Missing signing materials in $dir (need .p12/.pfx, .mobileprovision and password.txt). Skipping."
@@ -72,69 +79,75 @@ jobs:
 
             PASSWORD=$(cat "$PASS_FILE")
 
-            echo "Signing NexStore.ipa..."
-            # Use explicit paths to files (zsign expects a file path for -k and -m)
-            ./zsign -k "$P12_FILE" -m "$PROV_FILE" -p "$PASSWORD" -o NexStore-signed.ipa NexStore.ipa
-            if [[ $? -ne 0 ]]; then
-              echo "zsign failed for $dir"
-              cd - >/dev/null || true
-              continue
-            fi
+            echo "Signing NexStore.ipa with zsign..."
+            ./zsign -k "$P12_FILE" -m "$PROV_FILE" -p "$PASSWORD" -o NexStore-signed.ipa NexStore.ipa || {
+              echo "zsign failed in $dir"; cd - >/dev/null || true; continue;
+            }
 
-            # Replace unsigned ipa with signed one
+            # Replace unsigned ipa with signed one (as requested)
             rm -f NexStore.ipa
             mv NexStore-signed.ipa NexStore.ipa
 
-            # Construct public raw URL to the file in the repo (assumes main branch and file will be committed)
-            IPA_LINK="$REPO_URL/$dir/NexStore/NexStore.ipa"
+            # Construct the public raw URL (assumes commit to main later)
+            IPA_LINK="${REPO_RAW_BASE}/${dir}/NexStore/NexStore.ipa"
+            export IPA_LINK
+            export VERSION
 
-            echo "Writing install.plist..."
-            # Use printf per-line to avoid here-doc indentation problems
-            printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' \
-'<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' \
-'<plist version="1.0">' \
-'<dict>' \
-'    <key>items</key>' \
-'    <array>' \
-'        <dict>' \
-'            <key>assets</key>' \
-'            <array>' \
-'                <dict>' \
-'                    <key>kind</key>' \
-'                    <string>software-package</string>' \
-'                    <key>url</key>' \
-"                    <string>$IPA_LINK</string>" \
-'                </dict>' \
-'                <dict>' \
-'                    <key>kind</key>' \
-'                    <string>display-image</string>' \
-'                    <key>url</key>' \
-'                    <string>https://raw.githubusercontent.com/NovaDev404/NexStore/refs/heads/main/NexStore/Resources/AppIcon.icon/Assets/NexStore.png</string>' \
-'                </dict>' \
-'                <dict>' \
-'                    <key>kind</key>' \
-'                    <string>full-size-image</string>' \
-'                    <key>url</key>' \
-'                    <string>https://raw.githubusercontent.com/NovaDev404/NexStore/refs/heads/main/NexStore/Resources/AppIcon.icon/Assets/NexStore.png</string>' \
-'                </dict>' \
-'            </array>' \
-'            <key>metadata</key>' \
-'            <dict>' \
-'                <key>bundle-identifier</key>' \
-'                <string>com.novadev.nexstore</string>' \
-'                <key>bundle-version</key>' \
-"                <string>$VERSION</string>" \
-'                <key>kind</key>' \
-'                <string>software</string>' \
-'                <key>title</key>' \
-'                <string>NexStore</string>' \
-'            </dict>' \
-'        </dict>' \
-'    </array>' \
-'</dict>' \
-'</plist>' > install.plist
+            echo "Writing install.plist (using Python writer)..."
 
-            echo "Finished $dir"
+            # Use Python to write a well-formed plist (avoids YAML/heredoc quoting issues)
+            python3 - <<'PY'
+import os
+ipa = os.environ['IPA_LINK']
+version = os.environ['VERSION']
+content = f'''<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>items</key>
+    <array>
+        <dict>
+            <key>assets</key>
+            <array>
+                <dict>
+                    <key>kind</key>
+                    <string>software-package</string>
+                    <key>url</key>
+                    <string>{ipa}</string>
+                </dict>
+                <dict>
+                    <key>kind</key>
+                    <string>display-image</string>
+                    <key>url</key>
+                    <string>https://raw.githubusercontent.com/NovaDev404/NexStore/refs/heads/main/NexStore/Resources/AppIcon.icon/Assets/NexStore.png</string>
+                </dict>
+                <dict>
+                    <key>kind</key>
+                    <string>full-size-image</string>
+                    <key>url</key>
+                    <string>https://raw.githubusercontent.com/NovaDev404/NexStore/refs/heads/main/NexStore/Resources/AppIcon.icon/Assets/NexStore.png</string>
+                </dict>
+            </array>
+            <key>metadata</key>
+            <dict>
+                <key>bundle-identifier</key>
+                <string>com.novadev.nexstore</string>
+                <key>bundle-version</key>
+                <string>{version}</string>
+                <key>kind</key>
+                <string>software</string>
+                <key>title</key>
+                <string>NexStore</string>
+            </dict>
+        </dict>
+    </array>
+</dict>
+</plist>
+'''
+open('install.plist', 'w', encoding='utf-8').write(content)
+PY
+
+            echo "Finished processing $dir"
             cd ../../
           done
 
