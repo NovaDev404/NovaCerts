@@ -1,0 +1,128 @@
+name: NexStore Auto Builder
+
+on:
+  push:
+    paths-ignore:
+      - '.github/**'
+      - 'scripts/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq wget tar
+
+      - name: Process folders
+        run: |
+          REPO_URL="https://github.com/${{ github.repository }}"
+
+          # get latest release info
+          RELEASE_JSON=$(curl -s https://api.github.com/repos/NovaDev404/NexStore/releases/latest)
+          IPA_URL=$(echo "$RELEASE_JSON" | jq -r '.assets[] | select(.name | endswith(".ipa")) | .browser_download_url')
+          VERSION=$(echo "$RELEASE_JSON" | jq -r '.name' | sed 's/.*v//')
+
+          echo "Latest NexStore version: $VERSION"
+
+          for dir in */ ; do
+            dir=${dir%/}
+
+            if [[ "$dir" == ".github" || "$dir" == "scripts" ]]; then
+              continue
+            fi
+
+            echo "Checking $dir"
+
+            mkdir -p "$dir/NexStore"
+
+            if [[ -f "$dir/NexStore/NexStore.ipa" && -f "$dir/NexStore/install.plist" ]]; then
+              echo "Already valid, skipping"
+              continue
+            fi
+
+            echo "Building NexStore for $dir"
+
+            cd "$dir/NexStore"
+
+            # download ipa
+            wget -q "$IPA_URL" -O NexStore.ipa
+
+            # download zsign
+            wget -q https://github.com/zhlynn/zsign/releases/download/v0.9.1/zsign-linux-x86_64.tar.gz
+            tar -xzf zsign-linux-x86_64.tar.gz
+            chmod +x zsign
+
+            PASSWORD=$(cat ../password.txt)
+
+            ./zsign \
+              -k ../*.p12 \
+              -m ../*.mobileprovision \
+              -p "$PASSWORD" \
+              -o NexStore-signed.ipa \
+              NexStore.ipa
+
+            rm NexStore.ipa
+            mv NexStore-signed.ipa NexStore.ipa
+
+            IPA_LINK="$REPO_URL/raw/main/$dir/NexStore/NexStore.ipa"
+
+            cat > install.plist <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>items</key>
+    <array>
+        <dict>
+            <key>assets</key>
+            <array>
+                <dict>
+                    <key>kind</key>
+                    <string>software-package</string>
+                    <key>url</key>
+                    <string>$IPA_LINK</string>
+                </dict>
+                <dict>
+                    <key>kind</key>
+                    <string>display-image</string>
+                    <key>url</key>
+                    <string>https://raw.githubusercontent.com/NovaDev404/NexStore/refs/heads/main/NexStore/Resources/AppIcon.icon/Assets/NexStore.png</string>
+                </dict>
+                <dict>
+                    <key>kind</key>
+                    <string>full-size-image</string>
+                    <key>url</key>
+                    <string>https://raw.githubusercontent.com/NovaDev404/NexStore/refs/heads/main/NexStore/Resources/AppIcon.icon/Assets/NexStore.png</string>
+                </dict>
+            </array>
+            <key>metadata</key>
+            <dict>
+                <key>bundle-identifier</key>
+                <string>com.novadev.nexstore</string>
+                <key>bundle-version</key>
+                <string>$VERSION</string>
+                <key>kind</key>
+                <string>software</string>
+                <key>title</key>
+                <string>NexStore</string>
+            </dict>
+        </dict>
+    </array>
+</dict>
+</plist>
+EOF
+
+            cd ../..
+          done
+
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: "."
+          message: "auto: build NexStore signed ipa"
+          default_author: github_actions
