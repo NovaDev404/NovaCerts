@@ -86,43 +86,7 @@ jobs:
             if [[ -f "$DIR/NexStore/NexStore.ipa" && -f "$DIR/NexStore/install.plist" ]]; then
               echo "Existing build detected, validating injected signing assets: $DIR"
 
-              if IPA_PATH="$DIR/NexStore/NexStore.ipa" CHECK_CERT_NAME="$CERT_NAME" python3 - <<'PY'
-import os
-import sys
-import zipfile
-
-ipa_path = os.environ["IPA_PATH"]
-cert_name = os.environ.get("CHECK_CERT_NAME", "")
-
-try:
-    with zipfile.ZipFile(ipa_path) as archive:
-        names = [name for name in archive.namelist() if name.startswith("Payload/") and ".app/signing-assets/" in name]
-except Exception:
-    sys.exit(1)
-
-def has_bundle(target_name: str) -> bool:
-    required_suffixes = (
-        f"/signing-assets/{target_name}/cert.p12",
-        f"/signing-assets/{target_name}/cert.mobileprovision",
-        f"/signing-assets/{target_name}/password.txt",
-    )
-    return all(any(name.endswith(suffix) for name in names) for suffix in required_suffixes)
-
-if cert_name and has_bundle(cert_name):
-    sys.exit(0)
-
-candidates = set()
-for name in names:
-    parts = name.split("/")
-    try:
-        index = parts.index("signing-assets")
-    except ValueError:
-        continue
-    if index + 1 < len(parts):
-        candidates.add(parts[index + 1])
-
-sys.exit(0 if any(has_bundle(candidate) for candidate in candidates) else 1)
-PY
+              if python3 scripts/check_injected_signing_assets.py "$DIR/NexStore/NexStore.ipa" "$CERT_NAME"
               then
                 echo "Already exists with injected signing assets, skipping: $DIR"
                 # ensure no leftover zsign artifacts linger in that folder
