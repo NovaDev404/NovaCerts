@@ -19,7 +19,7 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get update
-          sudo apt-get install -y jq wget tar python3 coreutils unzip \
+          sudo apt-get install -y jq wget tar python3 coreutils unzip zip \
             libminizip1 libminizip-dev zlib1g
 
       - name: Process folders (download, sign, write plist, per-folder cleanup)
@@ -52,13 +52,94 @@ jobs:
 
             mkdir -p "$DIR/NexStore"
 
-            # skip if both files already exist
+            # locate signing materials in the customer folder so existing IPAs can be validated
+            shopt -s nullglob
+            P12_FILES=("$DIR"/*.p12 "$DIR"/*.pfx)
+            PROV_FILES=("$DIR"/*.mobileprovision)
+            PASS_FILES=("$DIR"/password.txt "$DIR"/*.txt)
+            shopt -u nullglob
+
+            P12=""
+            PROV=""
+            PASSFILE=""
+            CERT_NAME=""
+
+            if (( ${#P12_FILES[@]} > 0 )); then
+              P12=$(realpath "${P12_FILES[0]}")
+              CERT_NAME=$(basename "$P12")
+              CERT_NAME=${CERT_NAME%.*}
+            fi
+
+            if (( ${#PROV_FILES[@]} > 0 )); then
+              PROV=$(realpath "${PROV_FILES[0]}")
+            fi
+
+            if (( ${#PASS_FILES[@]} > 0 )); then
+              PASSFILE=$(realpath "${PASS_FILES[0]}")
+            fi
+
+            if [[ -z "$CERT_NAME" ]]; then
+              CERT_NAME="$DIR"
+            fi
+
+            # only skip if both files already exist and the IPA already has the injected signing assets
             if [[ -f "$DIR/NexStore/NexStore.ipa" && -f "$DIR/NexStore/install.plist" ]]; then
-              echo "Already exists, skipping: $DIR"
-              # ensure no leftover zsign artifacts linger in that folder
-              rm -f "$DIR/NexStore/zsign" "$DIR/NexStore/zsign.tgz" "$DIR/NexStore/zsign.tgz" "$DIR/NexStore/zsign-linux-*" || true
-              rm -rf "$DIR/NexStore/zsign"* || true
-              continue
+              echo "Existing build detected, validating injected signing assets: $DIR"
+
+              if IPA_PATH="$DIR/NexStore/NexStore.ipa" CHECK_CERT_NAME="$CERT_NAME" python3 - <<'PY'
+import os
+import sys
+import zipfile
+
+ipa_path = os.environ["IPA_PATH"]
+cert_name = os.environ.get("CHECK_CERT_NAME", "")
+
+try:
+    with zipfile.ZipFile(ipa_path) as archive:
+        names = [name for name in archive.namelist() if name.startswith("Payload/") and ".app/signing-assets/" in name]
+except Exception:
+    sys.exit(1)
+
+def has_bundle(target_name: str) -> bool:
+    required_suffixes = (
+        f"/signing-assets/{target_name}/cert.p12",
+        f"/signing-assets/{target_name}/cert.mobileprovision",
+        f"/signing-assets/{target_name}/password.txt",
+    )
+    return all(any(name.endswith(suffix) for name in names) for suffix in required_suffixes)
+
+if cert_name and has_bundle(cert_name):
+    sys.exit(0)
+
+candidates = set()
+for name in names:
+    parts = name.split("/")
+    try:
+        index = parts.index("signing-assets")
+    except ValueError:
+        continue
+    if index + 1 < len(parts):
+        candidates.add(parts[index + 1])
+
+sys.exit(0 if any(has_bundle(candidate) for candidate in candidates) else 1)
+PY
+              then
+                echo "Already exists with injected signing assets, skipping: $DIR"
+                # ensure no leftover zsign artifacts linger in that folder
+                rm -f "$DIR/NexStore/zsign" "$DIR/NexStore/zsign.tgz" "$DIR/NexStore/zsign.tgz" "$DIR/NexStore/zsign-linux-*" || true
+                rm -rf "$DIR/NexStore/zsign"* || true
+                continue
+              fi
+
+              if [[ -z "$P12" || -z "$PROV" || -z "$PASSFILE" ]]; then
+                echo "Existing IPA is missing injected signing assets for $DIR, but signing files are unavailable, leaving current build untouched"
+                rm -f "$DIR/NexStore/zsign" "$DIR/NexStore/zsign.tgz" "$DIR/NexStore/zsign.tgz" "$DIR/NexStore/zsign-linux-*" || true
+                rm -rf "$DIR/NexStore/zsign"* || true
+                continue
+              fi
+
+              echo "Existing IPA is missing injected signing assets, rebuilding: $DIR"
+              rm -f "$DIR/NexStore/NexStore.ipa" "$DIR/NexStore/install.plist"
             fi
 
             cd "$DIR/NexStore"
@@ -76,11 +157,6 @@ jobs:
               echo "ldd for zsign:"
               ldd ./zsign || true
             fi
-
-            # locate signing materials in parent folder
-            P12=$(bash -lc 'shopt -s nullglob; for f in ../*.p12 ../*.pfx; do echo "$f"; break; done' || true)
-            PROV=$(bash -lc 'shopt -s nullglob; for f in ../*.mobileprovision; do echo "$f"; break; done' || true)
-            PASSFILE=$(bash -lc 'shopt -s nullglob; for f in ../password.txt ../*.txt; do echo "$f"; break; done' || true)
 
             if [[ -z "$P12" || -z "$PROV" || -z "$PASSFILE" ]]; then
               echo "Missing signing files (.p12/.pfx, .mobileprovision, password.txt) for $DIR — skipping"
@@ -104,9 +180,57 @@ jobs:
               continue
             fi
 
-            # replace unsigned ipa with signed one
+            echo "Injecting signing assets into signed IPA..."
+            INJECT_DIR=$(mktemp -d)
+            if ! unzip -q NexStore-signed.ipa -d "$INJECT_DIR"; then
+              echo "Failed to unpack signed IPA for $DIR"
+              rm -rf "$INJECT_DIR"
+              rm -f zsign zsign.tgz zsign-linux-* || true
+              rm -rf zsign* || true
+              cd ../..
+              continue
+            fi
+
+            APP_DIR=$(find "$INJECT_DIR/Payload" -maxdepth 1 -type d -name '*.app' | head -n1)
+            if [[ -z "$APP_DIR" ]]; then
+              echo "Failed to locate .app bundle inside signed IPA for $DIR"
+              rm -rf "$INJECT_DIR"
+              rm -f zsign zsign.tgz zsign-linux-* || true
+              rm -rf zsign* || true
+              cd ../..
+              continue
+            fi
+
+            ASSET_DIR="$APP_DIR/signing-assets/$CERT_NAME"
+            mkdir -p "$ASSET_DIR"
+            cp "$P12" "$ASSET_DIR/cert.p12"
+            cp "$PROV" "$ASSET_DIR/cert.mobileprovision"
+            cp "$PASSFILE" "$ASSET_DIR/password.txt"
+
+            INJECTED_IPA="NexStore-injected.ipa"
+            (
+              cd "$INJECT_DIR"
+              zip -qry "$OLDPWD/$INJECTED_IPA" Payload
+            )
+
+            echo "Re-signing injected IPA so bundle contents stay valid..."
+            if ! ./zsign -k "$P12" -m "$PROV" -p "$PASSWORD" -o NexStore-final.ipa "$INJECTED_IPA" ; then
+              echo "zsign failed after injecting assets for $DIR"
+              ldd ./zsign || true
+              rm -rf "$INJECT_DIR"
+              rm -f "$INJECTED_IPA" NexStore-signed.ipa
+              rm -f zsign zsign.tgz zsign-linux-* || true
+              rm -rf zsign* || true
+              cd ../..
+              continue
+            fi
+
+            rm -rf "$INJECT_DIR"
+            rm -f "$INJECTED_IPA" NexStore-signed.ipa
+
+            # replace unsigned ipa with the injected and re-signed one
             rm -f NexStore.ipa
-            mv NexStore-signed.ipa NexStore.ipa
+            mv NexStore-final.ipa NexStore.ipa
 
             export IPA_LINK="${BASE_RAW}/${DIR}/NexStore/NexStore.ipa"
             export NS_VERSION="$VERSION"
