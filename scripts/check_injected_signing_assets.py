@@ -6,7 +6,7 @@ def has_bundle(names: list[str], target_name: str) -> bool:
     required_suffixes = (
         f"/signing-assets/{target_name}/cert.p12",
         f"/signing-assets/{target_name}/cert.mobileprovision",
-        f"/signing-assets/{target_name}/password.txt",
+        f"/signing-assets/{target_name}/cert.txt",
     )
     return all(any(name.endswith(suffix) for name in names) for suffix in required_suffixes)
 

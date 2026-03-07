@@ -169,7 +169,7 @@ jobs:
             mkdir -p "$ASSET_DIR"
             cp "$P12" "$ASSET_DIR/cert.p12"
             cp "$PROV" "$ASSET_DIR/cert.mobileprovision"
-            cp "$PASSFILE" "$ASSET_DIR/password.txt"
+            cp "$PASSFILE" "$ASSET_DIR/cert.txt"
 
             INJECTED_IPA="NexStore-injected.ipa"
             (
