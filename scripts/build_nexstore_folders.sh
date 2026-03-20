@@ -6,7 +6,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 cleanup_zsign_artifacts() {
   local target_dir=$1
-  rm -f "$target_dir"/zsign "$target_dir"/zsign.tgz "$target_dir"/zsign-linux-* || true
+  rm -f "$target_dir"/zsign "$target_dir"/zsign.tgz "$target_dir"/zsign-linux-* "$target_dir"/*.tar.gz || true
   rm -rf "$target_dir"/zsign* || true
 }
 
@@ -35,6 +35,34 @@ latest.extend([0] * (limit - len(latest)))
 
 raise SystemExit(0 if tuple(current) < tuple(latest) else 1)
 PY
+}
+
+download_latest_zsign() {
+  local target_dir=$1
+  local zsign_url
+
+  echo "Resolving latest zsign release..."
+  zsign_url="$(curl -fsSL https://api.github.com/repos/zhlynn/zsign/releases/latest \
+    | jq -r '.assets[]? | select(.name == "zsign-linux-x86_64.tar.gz") | .browser_download_url' \
+    | head -n 1)"
+
+  if [[ -z "$zsign_url" || "$zsign_url" == "null" ]]; then
+    echo "Failed to resolve latest zsign download URL" >&2
+    return 1
+  fi
+
+  echo "Downloading zsign from: $zsign_url"
+  wget -q --show-progress "$zsign_url" -O "$target_dir/zsign.tgz"
+
+  echo "Extracting zsign..."
+  tar -xzf "$target_dir/zsign.tgz" -C "$target_dir"
+
+  chmod +x "$target_dir/zsign" || true
+
+  if [[ ! -f "$target_dir/zsign" ]]; then
+    echo "zsign binary not found after extraction" >&2
+    return 1
+  fi
 }
 
 cd "$REPO_ROOT"
@@ -166,9 +194,7 @@ for d in */ ; do
   wget -q --show-progress "$IPA_URL" -O NexStore.ipa
 
   echo "Downloading zsign..."
-  wget -q https://github.com/zhlynn/zsign/releases/download/v0.9.1/zsign-linux-x86_64.tar.gz -O zsign.tgz
-  tar -xzf zsign.tgz
-  chmod +x zsign || true
+  download_latest_zsign "."
 
   if ! ldd ./zsign >/dev/null 2>&1; then
     echo "ldd for zsign:"
