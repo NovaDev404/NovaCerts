@@ -9,6 +9,7 @@ View the certificate status [here](https://novadev.vip/resources/certificates/)!
 
 | Company | Type | Status | Valid From | Valid To | Download |
 |:--------|:----|:------|:----------|:--------|:--------|
+| XL AXIATA, PT TBK | Enterprise Certificate | ❌ Revoked | Jan 26 22:23:53 2026 GMT | Jan 26 22:23:53 2027 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/National%2520Oilwell%2520Varco%252C%2520Inc) |
 | National Oilwell Varco, Inc | Enterprise Certificate | ❌ Revoked | Jan 26 22:23:53 2026 GMT | Jan 26 22:23:53 2027 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/National%2520Oilwell%2520Varco%252C%2520Inc) |
 | VIETNAM AIRLINES JSC | Enterprise Certificate | ❌ Revoked | Apr 22 14:56:19 2025 GMT | Apr 22 14:56:19 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/VIETNAM%2520AIRLINES%2520JSC) |
 | Forevermark Marketing(Shanghai ) Limited | Enterprise Certificate | ❌ Revoked | Nov 6 12:39:14 2025 GMT | Nov 6 12:39:14 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/Forevermark%2520Marketing%2528Shanghai%2520%2529%2520Limited) |
@@ -48,6 +49,7 @@ View the certificate status [here](https://novadev.vip/resources/certificates/)!
 
 # Updates
 
+**28-03-26** Add the XL AXIATA, PT TBK cert! 🥳  
 **21-03-26** Add the Complaints Management MP of the Commision on Elections cert! 🎉  
 **02-03-26** Add the National Oilwell Varco, Inc cert!  
 **26-02-26** Add the VIETNAM AIRLINES JSC certificate!  
