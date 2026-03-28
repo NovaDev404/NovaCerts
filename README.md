@@ -9,7 +9,7 @@ View the certificate status [here](https://novadev.vip/resources/certificates/)!
 
 | Company | Type | Status | Valid From | Valid To | Download |
 |:--------|:----|:------|:----------|:--------|:--------|
-| XL AXIATA, PT TBK | Enterprise Certificate | ❌ Revoked | Jan 26 22:23:53 2026 GMT | Jan 26 22:23:53 2027 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/National%2520Oilwell%2520Varco%252C%2520Inc) |
+| XL AXIATA, PT TBK | Enterprise Certificate | ✅ Signed | Feb 19 04:09:48 2026 GMT | Feb 19 04:09:48 2027 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/XL%2520AXIATA%252C%2520PT%2520TBK) |
 | National Oilwell Varco, Inc | Enterprise Certificate | ❌ Revoked | Jan 26 22:23:53 2026 GMT | Jan 26 22:23:53 2027 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/National%2520Oilwell%2520Varco%252C%2520Inc) |
 | VIETNAM AIRLINES JSC | Enterprise Certificate | ❌ Revoked | Apr 22 14:56:19 2025 GMT | Apr 22 14:56:19 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/VIETNAM%2520AIRLINES%2520JSC) |
 | Forevermark Marketing(Shanghai ) Limited | Enterprise Certificate | ❌ Revoked | Nov 6 12:39:14 2025 GMT | Nov 6 12:39:14 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/Forevermark%2520Marketing%2528Shanghai%2520%2529%2520Limited) |
