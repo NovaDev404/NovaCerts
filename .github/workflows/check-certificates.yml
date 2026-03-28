@@ -169,7 +169,7 @@ jobs:
         git commit -m "📝 Update certificate statuses and download paths [$(date +'%Y-%m-%d %H:%M')]"
 
         # 🔥 Pull latest changes BEFORE pushing
-        git pull origin main --rebase
+        git pull origin main --rebase -X ours
 
         # 🚀 Push safely
         git push origin main
