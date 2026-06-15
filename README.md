@@ -10,6 +10,7 @@ View the certificate status [here](https://novadev.vip/sideloading/certificates/
 
 | Company | Type | Status | Valid From | Valid To | Download |
 |:--------|:----|:------|:----------|:--------|:--------|
+| China Telecom Corporation Limited | Enterprise Certificate | ❌ Revoked | Feb 17 15:03:05 2026 GMT | Sep 24 13:35:52 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/Aramco%2520Services%2520Company) |
 | Aramco Services Company | Enterprise Certificate | ❌ Revoked | Feb 17 15:03:05 2026 GMT | Sep 24 13:35:52 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/Aramco%2520Services%2520Company) |
 | Beijing Zhizhangyi Inc. | Enterprise Certificate | ❌ Revoked | Jul 18 09:18:33 2025 GMT | Jul 18 09:18:33 2026 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/Beijing%2520Zhizhangyi%2520Inc.) |
 | XL AXIATA, PT TBK | Enterprise Certificate | ❌ Revoked | Feb 19 04:09:48 2026 GMT | Feb 19 04:09:48 2027 GMT | [Download](https://download-directory.github.io/?url=https%3A//github.com/NovaDev404/certificates/tree/main/XL%2520AXIATA%252C%2520PT%2520TBK) |
