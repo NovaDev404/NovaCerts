@@ -3,7 +3,7 @@
 [![Download Certificates](https://custom-icon-badges.demolab.com/badge/Download%20Certificates-blue?style=for-the-badge&logo=download&logoColor=white)](https://novadev.vip/sideloading/certificates/)
 
 - Previously NovaCerts 
--  Sources for these certificates include: [Loyahdev](https://github.com/loyahdev/certificates), [NezusHub](https://nezushub.vip/forums/public-certificates.7/)/[NabzClan](https://nabzclan.vip/resources/categories/ios-certificates.2/), [AppleJR](https://www.applejr.net/), [Khoindvn](https://khoindvn.io.vn/), and [Eojoo](https://github.com/eojoo/free-ios-certificates).  
+-  Sources for these certificates include: [Loyahdev](https://github.com/loyahdev/certificates), [NezusHub](https://forum.nezushub.vip/forums/public-certificates.7/)/[NabzClan](https://nabzclan.vip/resources/categories/ios-certificates.2/), [AppleJR](https://www.applejr.net/), [Khoindvn](https://khoindvn.io.vn/), and [Eojoo](https://github.com/eojoo/free-ios-certificates).  
   Most of these certificates originate from [AppleP12 Telegram](https://t.me/s/AppleP12).  
 
 - Certificate statuses update every 30 minutes.  
@@ -14,7 +14,9 @@ View the certificate status [here](https://novadev.vip/sideloading/certificates/
 | Certificate | Status | Valid From | Valid To |
 |:--------|:------|:----------|:--------|
 | Moving Increasingly Interconnected Technology Co., Ltd | ❌ Revoked | Jun 13 11:25:07 2026 GMT | Jun 13 11:25:07 2027 GMT |
-| VIETNAM AIRLINES JSC 2 | ❌ Revoked | Aug 8 12:21:46 2025 GMT | Aug 8 12:21:46 2026 GMT |
+| VIETNAM AIRLINES JSC (VNA Discovery) | ❌ Revoked | Aug 8 12:21:46 2025 GMT | Aug 8 12:21:46 2026 GMT |
+| VIETNAM AIRLINES JSC (MOPLUS Pro) | ❌ Revoked | Aug 8 12:21:46 2025 GMT | Aug 8 12:21:46 2026 GMT |
+| VIETNAM AIRLINES JSC (MOPLUS LIDO UAT) | ❌ Revoked | Aug 8 12:21:46 2025 GMT | Aug 8 12:21:46 2026 GMT |
 | China Telecom Corporation Limited | ❌ Revoked | Apr 23 08:44:02 2026 GMT | Apr 23 08:44:02 2027 GMT |
 | Aramco Services Company | ❌ Revoked | Feb 17 15:03:05 2026 GMT | Sep 24 13:35:52 2026 GMT |
 | Beijing Zhizhangyi Inc. | ❌ Revoked | Jul 18 09:18:33 2025 GMT | Jul 18 09:18:33 2026 GMT |
